@@ -351,11 +351,11 @@ namespace BombsAway
         {
             switch (e.KeyCode)
             {
-                case Keys.Z:if (GameOn) {Score += 120; }
-                    
+                case Keys.Z:
+                    Score += 120;
                     break;
-                case Keys.X: if (GameOn) {pb_Player.Top+=3; }
-                    
+                case Keys.X:
+                    pb_Player.Top+=3;
                     break;
                 case Keys.P:                    // On P Keypress down
                     if (GameOn)
@@ -386,14 +386,13 @@ namespace BombsAway
                     }
                     break;
                 case Keys.Space:    // On Space Keypress down
-                    if (GameOn) { 
                     if (label_Dead.Visible && !label_Dead.Text.Contains("Paused"))
                     {               // If pressed Space and the death label is shown
                         Reset();    //Reset the game
                     }
                     else
                     {
-                        if (!Player_Jump && !Collision_Top(pb_Player))
+                        if (!Player_Jump && !InAirNoCollision(pb_Player))
                         {   //Anti multijump - If the player doesnt jump, is in the air and not colliding with anything
                             if (LastDirRight)       //Checks direction, changes jump image
                             {
@@ -411,7 +410,7 @@ namespace BombsAway
                     break;
             }
         }
-}
+
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             if (GameOn)
@@ -854,11 +853,6 @@ namespace BombsAway
             DebugMenu[8] = this.debug_MSpeed;
             NPC[0] = pb_NPC1;
             NPC[1] = pb_NPC2;
-        }
-
-        private void WorldFrame_Paint(object sender, PaintEventArgs e)
-        {
-
         }
     }
 }
