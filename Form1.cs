@@ -92,10 +92,13 @@ namespace BombsAway
                 {
                     PictureBox temp1 = new PictureBox();    //Creates a single pixel above the target picturebox, asks if anything is colliding with it
                     temp1.Bounds = ob.Bounds;
-                    //PaintBox(temp1.Location.X, temp1.Location.Y - 1, temp1.Width, 1, Color.Blue); //Super laggy doing this, troubleshooting only
+                    // PaintBox(temp1.Location.X, temp1.Location.Y - 1, temp1.Width, 1, Color.Blue); //Super laggy doing this, troubleshooting only
                     temp1.SetBounds(temp1.Location.X - 3, temp1.Location.Y - 1, temp1.Width + 6, 1);
                     if (tar.Bounds.IntersectsWith(temp1.Bounds))
+                    {
+                        
                         return true;
+                    }
                 }
             }
             return false;
@@ -145,7 +148,9 @@ namespace BombsAway
                     //PaintBox(temp2.Location.X + temp2.Width, temp2.Location.Y + 1, 1, temp2.Height - 1, Color.Yellow); //Super laggy doing this, troubleshooting only
                     temp2.SetBounds(temp2.Location.X + temp2.Width, temp2.Location.Y + 1, 1, temp2.Height - 1);
                     if (tar.Bounds.IntersectsWith(temp2.Bounds))
+                      
                         return true;
+                            
                 }
             }
             return false;
@@ -318,10 +323,10 @@ namespace BombsAway
             Cloud.Name = "Cloud";
             Cloud.BackColor = Color.Transparent;
             Cloud.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            Cloud.Size = new System.Drawing.Size(BombSize, BombSize);
+            Cloud.Size = new System.Drawing.Size(90, 40);
             Cloud.Image = World.Clouds;
             Cloud.Location = new System.Drawing.Point(x, y);
-            WorldFrame.Controls.Add(Cloud);
+            WorldFrame.Controls.Add(Cloud);           
         }
 
         public void PaintBox(int X, int Y, int W, int H, Color C)
@@ -408,6 +413,43 @@ namespace BombsAway
                         }
                     }
                     break;
+                case Keys.A:                 // On Left Keypress down
+                    if (GameOn)
+                    {
+                        LastDirRight = false;   //For the animation, stand right or left
+                        Player_Left = true;     //Walk left
+                    }
+                    break;
+                case Keys.D:              // On Right Keypress down
+                    if (GameOn)
+                    {
+                        LastDirRight = true;
+                        Player_Right = true;
+                    }
+                    break;
+                case Keys.W:    // On Space Keypress down
+                    if (label_Dead.Visible && !label_Dead.Text.Contains("Paused"))
+                    {               // If pressed Space and the death label is shown
+                        Reset();    //Reset the game
+                    }
+                    else
+                    {
+                        if (!Player_Jump && !InAirNoCollision(pb_Player))
+                        {   //Anti multijump - If the player doesnt jump, is in the air and not colliding with anything
+                            if (LastDirRight)       //Checks direction, changes jump image
+                            {
+                                pb_Player.Image = Character.jump_r;
+                            }
+                            else
+                            {
+                                pb_Player.Image = Character.jump_l;
+                            }
+                            pb_Player.Top -= Speed_Jump;     //Player moves up a bit
+                            Force = Gravity;        //Force to be moved up changes
+                            Player_Jump = true;     //Sets a variable that player is jumping
+                        }
+                    }
+                    break;
             }
         }
 
@@ -427,6 +469,16 @@ namespace BombsAway
                         LastDirRight = true;
                         Player_Right = false;
                         break;
+                    case Keys.A:                             //On Left Key press UP
+                        pb_Player.Image = Character.stand_l;    //Players image changes to stand
+                        LastDirRight = false;                   //Last move was to the left
+                        Player_Left = false;                    //Doesnt move left anymore
+                        break;
+                    case Keys.D:
+                        pb_Player.Image = Character.stand_r;
+                        LastDirRight = true;
+                        Player_Right = false;
+                        break;
                 }
             }
         }
@@ -442,6 +494,7 @@ namespace BombsAway
                 }
                 if (Player_Left && pb_Player.Location.X >= 3 && !Collision_Right(pb_Player))
                 { //Stops the player from moving out of screen
+                    
                     pb_Player.Left -= Speed_Movement; //Moves left
                 }
             }
@@ -589,7 +642,7 @@ namespace BombsAway
                                 }
                                 if (OutsideWorldFrame(Bomb))
                                 {   //If the Rocket going left is out of frame, it gets removed
-                                    Bombs[x] = null;
+                                   Bombs[x] = null;
                                     Bomb.Dispose();
                                     DebugLog += DateTime.Now + ": Removed rocket at " + x + "\n";
                                 }   ///Otherwise, any rocket going on the ground gets removed
@@ -705,11 +758,11 @@ namespace BombsAway
                                 pbL.Image = Enemy.Rocket_L;
                                 if (rng.Next(1, 3) == 1)
                                 {
-                                    pbL.Location = new System.Drawing.Point(WorldFrame.Width + 30, 205);
+                                    pbL.Location = new System.Drawing.Point(WorldFrame.Width - 30, 205);
                                 }
                                 else
                                 {
-                                    pbL.Location = new System.Drawing.Point(WorldFrame.Width + 30, 151);
+                                    pbL.Location = new System.Drawing.Point(WorldFrame.Width - 30, 151);
                                 }
                                 WorldFrame.Controls.Add(pbL);
                                 Bombs[NextBomb(Bombs)] = pbL;
@@ -842,6 +895,7 @@ namespace BombsAway
             WorldObjects[0] = pb_Pipe;
             WorldObjects[1] = pb_Block1;
             WorldObjects[2] = pb_Block2;
+            CreateCloud(200,50);
             DebugMenu[0] = this.debug_Log;
             DebugMenu[1] = this.debug_Godmode;
             DebugMenu[2] = this.debug_NoBombs;
